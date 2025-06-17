@@ -1,0 +1,12 @@
+# Node modules
+training-fiverr-back/node_modules/
+training-fiverr-front/node_modules/
+
+# Build output Angular
+training-fiverr-front/dist/
+
+# Build output NestJS (si tu en as un)
+training-fiverr-back/dist/
+
+# Env files
+*.env

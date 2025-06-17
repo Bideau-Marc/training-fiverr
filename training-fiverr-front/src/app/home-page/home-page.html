@@ -1,0 +1,8 @@
+<h1>Receipes list</h1>
+<div class="recipes-list">
+    <div class="recipe-card" *ngFor="let recipe of recipes">
+        <h2>{{ recipe.name }}</h2>
+        <p>{{ recipe.description }}</p>
+        <img [src]="recipe.imageUrl" alt="{{ recipe.name }}" />
+    </div>
+</div>
