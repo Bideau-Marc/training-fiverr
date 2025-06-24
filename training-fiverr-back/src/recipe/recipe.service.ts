@@ -28,9 +28,6 @@ export class RecipeService {
             if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
                 throw new ConflictException(`Recipe with title ${recipe.title} already exists.`);
             }
-            else if (error instanceof TimeoutError) {
-                throw new Error(`Database operation timed out.`);
-            }
             throw error;
         }
     }
@@ -46,20 +43,28 @@ export class RecipeService {
 
     }
     async updateRecipe(id: number, recipe: CreateRecipeDto): Promise<Recipe> {
+        log(`Updating recipe with id: ${id}`);
         try {
-            const prismaData = {
-                title: recipe.title,
-                steps: recipe.steps,
-                ingredients: {
-                    create: recipe.ingredients?.map(ingredient => ({
-                        name: ingredient.name,
-                        quantity: ingredient.quantity,
-                    })),
-                },
-            }
-            return this.prisma.recipe.update({
-                where: { id },
-                data: prismaData,
+            return this.prisma.$transaction(async (prisma) => {
+                // Supprimer tous les ingrédients liés à la recette
+                await prisma.ingredient.deleteMany({
+                    where: { recipeId: id },
+                });
+
+                // Mettre à jour la recette avec les nouvelles données et créer les nouveaux ingrédients
+                return prisma.recipe.update({
+                    where: { id },
+                    data: {
+                        title: recipe.title,
+                        steps: recipe.steps,
+                        ingredients: {
+                            create: recipe.ingredients?.map(ingredient => ({
+                                name: ingredient.name,
+                                quantity: ingredient.quantity,
+                            })),
+                        },
+                    },
+                });
             });
         } catch (error) {
             if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
@@ -68,6 +73,7 @@ export class RecipeService {
             throw error;
         }
     }
+
     async deleteRecipe(id: number): Promise<Recipe> {
         if (!id) {
             throw new Error('Recipe ID is required for deletion');

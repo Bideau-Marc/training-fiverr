@@ -16,12 +16,12 @@ export class RecipeController {
         return this.recipeService.getAllRecipes();
     }
     @Get(':id')
-    async getRecipeById(@Body('id') id: number): Promise<Recipe | null> {
-        return this.recipeService.getRecipeById(id);
+    async getRecipeById(@Param('id') id: number): Promise<Recipe | null> {
+        return this.recipeService.getRecipeById(+id);
     }
     @Patch(':id')
-    async updateRecipe(@Body('id') id: number, @Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
-        return this.recipeService.updateRecipe(id, createRecipeDto);
+    async updateRecipe(@Param('id') id: number, @Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
+        return this.recipeService.updateRecipe(+id, createRecipeDto);
     }
     @Delete(':id')
     async deleteRecipe(@Param('id') id: number): Promise<Recipe> {
